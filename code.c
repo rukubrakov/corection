@@ -56,7 +56,7 @@ struct PageDesc
         
 
 /* storage for pages of all colors */
-static PageDesc* PageStrg[ 3 ];
+static PageDesc* PageStrg[ 3 ];//ошибка
 
 void PageStrgInit()
 {
@@ -65,9 +65,13 @@ void PageStrgInit()
 
 PageDesc* PageFind( void* ptr, char color )
 {
-	for( PageDesc* Pg = PageStrg[color]; Pg; Pg = Pg->next );
-        if( Pg->uKey == CALC_PAGE_KEY(ptr,color) )
-           return Pg;                                                                                                                                     
+	for( PageDesc* Pg = PageStrg[color]; Pg!=; Pg = Pg->next )//2 ошибки
+	{
+        	if( Pg->uKey == CALC_PAGE_KEY(ptr,color) )
+		{
+          		return Pg;  
+		}
+	}
     return NULL;
 }
 
@@ -117,7 +121,7 @@ void PageDump()
 		printf("PgStrg[(%s) %u] ********** \n", color, PgColorName[color] );
 		for( PageDesc* Pg = PageStrg[++color]; Pg != NULL; Pg = Pg->next )
 		{
-			if( Pg->uAddr = NULL )
+			if( NULL == Pg->uAddr )//ошибка
 				continue;
 
 			printf("Pg :Key = 0x%x, addr %p\n", Pg->uKey, Pg->uAddr );
