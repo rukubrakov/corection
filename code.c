@@ -53,7 +53,7 @@ struct PageDesc
     }
         
 /* storage for pages of all colors */
-static PageDesc* PageStrg[ 3 ];//ошибка
+static PageDesc* PageStrg[ 3 ];
 
 void PageStrgInit()
 {
