@@ -17,7 +17,6 @@ enum PAGE_COLOR
 	PG_COLOR_RED	/* page is actively used */
 };
 
-
 /**
  * UINT Key of a page in hash-table (prepared from color and address)
  */
@@ -25,7 +24,7 @@ union PageKey
 {
 	struct
 	{
-        CHAR	cColor: 8;
+        	char	cColor: 8;     //char вместо CHAR
 		UINT	cAddr: 24;
 	};
 
@@ -35,7 +34,6 @@ union PageKey
 
 /* Prepare from 2 chars the key of the same configuration as in PageKey */
 #define CALC_PAGE_KEY( Addr, Color )	(  (Color) + (Addr) << 8 ) 
-
 
 /**
  * Descriptor of a single guest physical page
@@ -54,25 +52,24 @@ struct PageDesc
         (Desc).next = (Desc).prev = NULL;           \
     }
         
-
 /* storage for pages of all colors */
 static PageDesc* PageStrg[ 3 ];//ошибка
 
 void PageStrgInit()
 {
-	memset( PageStrg, 0, sizeof(&PageStrg) );
+	memset( PageStrg, 0, sizeof(PageStrg) ); //лишний &
 }
 
 PageDesc* PageFind( void* ptr, char color )
 {
-	for( PageDesc* Pg = PageStrg[color]; Pg!=; Pg = Pg->next )//2 ошибки
+	for( PageDesc* Pg = PageStrg[color]; Pg!=NULL; Pg = Pg->next )//двоеточие лишнее и "!=NULL" не хватало
 	{
         	if( Pg->uKey == CALC_PAGE_KEY(ptr,color) )
 		{
           		return Pg;  
 		}
 	}
-    return NULL;
+   	return NULL;
 }
 
 PageDesc* PageReclaim( UINT cnt )
@@ -96,12 +93,11 @@ PageDesc* PageInit( void* ptr, UINT color )
 {
     PageDesc* pg = new PageDesc;
     if( pg )
-        PAGE_INIT(&pg, ptr, color);
+        PAGE_INIT(pg, ptr, color); //опять же лишний &, ожидался аргумент другого типа
     else
         printf("Allocation has failed\n");
     return pg;
 }
-
 /**
  * Print all mapped pages
  */
@@ -119,13 +115,14 @@ void PageDump()
 	while( color <= PG_COLOR_RED )
 	{
 		printf("PgStrg[(%s) %u] ********** \n", color, PgColorName[color] );
-		for( PageDesc* Pg = PageStrg[++color]; Pg != NULL; Pg = Pg->next )
+		for( PageDesc* Pg = PageStrg[color]; Pg != NULL; Pg = Pg->next )//неудачное место для инкремента, на последней итерации while'а индекс выйдет за границы
 		{
-			if( NULL == Pg->uAddr )//ошибка
+			if( NULL == Pg->uAddr )//"=" вместо "=="
 				continue;
 
 			printf("Pg :Key = 0x%x, addr %p\n", Pg->uKey, Pg->uAddr );
 		}
+		++color;
 	}
 	#undef PG_COLOR_NAME
 }
